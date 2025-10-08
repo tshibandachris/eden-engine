@@ -1,3 +1,0 @@
-
-import Link from 'next/link';
-export default function Sidebar(){ return (<aside className="hidden md:flex flex-col w-72 p-4 eden-glass fixed left-6 top-6 bottom-6"><div className="flex items-center gap-3 mb-6"><div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">E</div><div><div className="font-bold">Eden Engine</div><div className="text-xs text-gray-400">Prédictions</div></div></div><nav className="flex-1"><ul className="space-y-2"><li><Link href="/matches"><a className="block p-3 rounded-md hover:bg-white/6">Matchs pariables</a></Link></li></ul></nav><div className="text-xs text-gray-400 mt-4">Christian Tshibanda — Eden Engine © 2025</div></aside>); }
