@@ -1,0 +1,1 @@
+PLACEHOLDER: create a 512x512 PNG at this path named icon-512.png

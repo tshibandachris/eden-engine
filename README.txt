@@ -1,0 +1,1 @@
+Place icon-192.png and icon-512.png here (192x192 and 512x512 PNG). Use a black & white version of the Eden logo.

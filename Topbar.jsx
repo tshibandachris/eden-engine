@@ -1,0 +1,2 @@
+
+export default function Topbar({date,onDateChange}){ return (<div className="flex items-center justify-between bg-white/5 p-4 rounded-lg eden-glass"><div><div className="text-sm text-gray-300">Sélectionner la date</div><div className="mt-1"><input type="date" value={date} onChange={onDateChange} className="bg-transparent text-white px-3 py-2 border border-white/10 rounded-md"/></div></div><div className="text-sm text-gray-400">Eden Engine — Matchs pariables</div></div>); }
