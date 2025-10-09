@@ -9,13 +9,8 @@ function App() {
 
   async function loadMatches(league = selectedLeague) {
     setLoading(true);
-    try {
-      const data = await getMatches(league);
-      setMatches(data);
-    } catch (err) {
-      console.error("Erreur de chargement :", err);
-      setMatches([]);
-    }
+    const data = await getMatches(league);
+    setMatches(data);
     setLoading(false);
   }
 
@@ -47,6 +42,7 @@ function App() {
       <h1>🌌 Eden Engine</h1>
       <p>Moteur intelligent de suivi des matchs ⚽</p>
 
+      {/* Sélecteur de ligue */}
       <div style={{ margin: "15px 0" }}>
         <label htmlFor="league">Choisir une ligue : </label>
         <select
@@ -69,6 +65,7 @@ function App() {
         </select>
       </div>
 
+      {/* Boutons */}
       <div style={{ marginBottom: "15px" }}>
         <button
           onClick={() => loadMatches()}
@@ -87,48 +84,43 @@ function App() {
         <button
           onClick={() => setAutoRefresh((prev) => !prev)}
           style={{
-            background: autoRefresh ? "#ffcc00" : "#555",
-            color: "black",
+            background: autoRefresh ? "#111" : "#00bfff",
+            color: autoRefresh ? "white" : "black",
             padding: "10px 20px",
-            border: "none",
+            border: "1px solid #00bfff",
             borderRadius: "8px",
           }}
         >
-          {autoRefresh ? "⏸️ Auto ON" : "▶️ Auto OFF"}
+          {autoRefresh ? "⏸️ Stop Auto" : "▶️ Auto ON"}
         </button>
       </div>
 
+      {/* Zone des matchs */}
       {loading ? (
-        <p>Chargement des matchs...</p>
-      ) : matches.length > 0 ? (
-        <div>
-          {matches.map((m) => (
+        <p>⏳ Chargement des matchs...</p>
+      ) : matches.length === 0 ? (
+        <p>Aucun match trouvé.</p>
+      ) : (
+        <div style={{ textAlign: "left", marginTop: 20 }}>
+          {matches.map((m, i) => (
             <div
-              key={m.MatchID}
+              key={i}
               style={{
-                borderBottom: "1px solid #333",
-                padding: "10px 0",
-                marginBottom: "5px",
+                background: "#111",
+                border: "1px solid #00bfff",
+                padding: 10,
+                borderRadius: 8,
+                marginBottom: 8,
               }}
             >
-              <strong>
-                {m.Team1?.TeamName} ⚔️ {m.Team2?.TeamName}
-              </strong>
-              <p>
-                Score : {m.MatchResults?.[0]?.PointsTeam1 ?? "-"} –{" "}
-                {m.MatchResults?.[0]?.PointsTeam2 ?? "-"}
-              </p>
-              <p>
-                {new Date(m.MatchDateTime).toLocaleString("fr-FR", {
-                  dateStyle: "short",
-                  timeStyle: "short",
-                })}
-              </p>
+              <strong>{m.team1}</strong> vs <strong>{m.team2}</strong>
+              <br />
+              <small>
+                {m.score} • {new Date(m.date).toLocaleString()}
+              </small>
             </div>
           ))}
         </div>
-      ) : (
-        <p>Aucun match disponible pour le moment.</p>
       )}
     </div>
   );
