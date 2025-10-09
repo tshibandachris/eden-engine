@@ -1,5 +1,5 @@
 
-Eden Engine - prebuilt PWA (FR/EN) - Multi-API connectors
+Eden Engine - PWA connected to TheSportsDB (no API key required)
 
 Deploy:
 1. Unzip.
@@ -8,5 +8,6 @@ Deploy:
 4. Wait ~1-2 minutes and open https://tshibandachris.github.io/eden-engine/
 
 Notes:
-- The frontend uses TheSportsDB by default (no key).
-- Optionally paste RapidAPI (API-Football) key or Football-Data token in the settings; keys stored in localStorage.
+- This version uses TheSportsDB public endpoint to fetch soccer matches by date.
+- Works offline thanks to the service worker (cached shell).
+- To replace icons, swap files in assets/icons/ (192x192 and 512x512 recommended).

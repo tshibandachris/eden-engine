@@ -1,25 +1,74 @@
 
-// Minimal multi-API connector (ASCII only)
-var STRINGS = { fr: { loading: "Chargement...", refresh: "Actualiser", date: "Date :", no_matches: "Aucun match pour cette date.", error_fetch: "Impossible de recuperer les matchs.", settings_api: "Parametres API (optionnel)", save_rapid: "Enregistrer RapidAPI", save_fdata: "Enregistrer Football-Data" }, en: { loading: "Loading...", refresh: "Refresh", date: "Date:", no_matches: "No matches for this date.", error_fetch: "Unable to fetch matches.", settings_api: "API Settings (optional)", save_rapid: "Save RapidAPI", save_fdata: "Save Football-Data" } };
-var LANG = localStorage.getItem('eden_lang') || 'fr';
-var API_THE_SPORTS_DB = 'https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=';
-var API_FOOTBALL_RAPID_HOST = 'api-football-v1.p.rapidapi.com';
-var dateInput = document.getElementById('date'); var refreshBtn = document.getElementById('refresh'); var grid = document.getElementById('grid'); var splash = document.getElementById('splash'); var langBtn = document.getElementById('langBtn');
+const API_THE_SPORTS_DB = 'https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=';
+const dateInput = document.getElementById('date');
+const refreshBtn = document.getElementById('refresh');
+const grid = document.getElementById('grid');
+const splash = document.getElementById('splash');
+
 dateInput.value = new Date().toISOString().split('T')[0];
-function t(k){ return STRINGS[LANG][k] || k; }
-function updateLabels(){ document.getElementById('refresh').textContent = t('refresh'); document.querySelector('label[for="date"]').textContent = t('date'); document.getElementById('settingsTitle').textContent = t('settings_api'); document.getElementById('saveRapidBtn').textContent = t('save_rapid'); document.getElementById('saveFDataBtn').textContent = t('save_fdata'); langBtn.textContent = LANG === 'fr' ? 'EN' : 'FR'; }
-async function fetchFromTheSportsDB(date){ try{ var res = await fetch(API_THE_SPORTS_DB + date + '&s=Soccer'); if(!res.ok) throw new Error('TSDB network'); var json = await res.json(); return (json.events || []).map(function(ev){ return { id: 'tsdb_' + (ev.idEvent||Math.random()), home_team: ev.strHomeTeam, away_team: ev.strAwayTeam, league: ev.strLeague, time: ev.strTime || ev.strTimestamp, source: 'thesportsdb', raw: ev }; }); }catch(e){ console.warn('TSDB failed', e); return null; } }
-async function fetchFromApiFootball(date){ var key = localStorage.getItem('rapidapi_key'); if(!key) return null; try{ var url = 'https://' + API_FOOTBALL_RAPID_HOST + '/v3/fixtures?date=' + date; var res = await fetch(url, { headers: { 'x-rapidapi-key': key, 'x-rapidapi-host': API_FOOTBALL_RAPID_HOST } }); if(!res.ok) throw new Error('API-Football network'); var json = await res.json(); return (json.response || []).map(function(f){ return { id: 'apif_' + (f.fixture && f.fixture.id || Math.random()), home_team: (f.teams && f.teams.home && f.teams.home.name), away_team: (f.teams && f.teams.away && f.teams.away.name), league: (f.league && f.league.name), time: (f.fixture && f.fixture.date), source: 'api-football', raw: f }; }); }catch(e){ console.warn('API-Football failed', e); return null; } }
-async function fetchFromFootballData(date){ var token = localStorage.getItem('football_data_token'); if(!token) return null; try{ var url = 'https://api.football-data.org/v4/matches?dateFrom=' + date + '&dateTo=' + date; var res = await fetch(url, { headers: { 'X-Auth-Token': token } }); if(!res.ok) throw new Error('Football-Data network'); var json = await res.json(); return (json.matches || []).map(function(m){ return { id: 'fdata_' + (m.id||Math.random()), home_team: (m.homeTeam && m.homeTeam.name), away_team: (m.awayTeam && m.awayTeam.name), league: (m.competition && m.competition.name), time: m.utcDate, source: 'football-data', raw: m }; }); }catch(e){ console.warn('Football-Data failed', e); return null; } }
-function normalizeAndMerge(lists){ var map = new Map(); lists.forEach(function(list){ if(!list) return; list.forEach(function(m){ if(!m.home_team || !m.away_team) return; var key = (m.home_team||'').toLowerCase().replace(/\s+/g,'') + '_' + (m.away_team||'').toLowerCase().replace(/\s+/g,'') + '_' + (m.time||'').toString().slice(0,19); if(!map.has(key)) map.set(key, {id:key, home_team:m.home_team, away_team:m.away_team, league:m.league, time:m.time, sources:[m.source]}); else { var existing = map.get(key); if(existing.sources.indexOf(m.source) === -1) existing.sources.push(m.source); } }); }); return Array.from(map.values()); }
-function poissonEstimate(homeStrength, awayStrength){ var gh = Math.max(0.2, 1.1 + (homeStrength - awayStrength) * 1.1); var ga = Math.max(0.2, 0.9 + (awayStrength - homeStrength) * 0.9); return {goals_home:parseFloat(gh.toFixed(2)), goals_away:parseFloat(ga.toFixed(2)), winner: gh>ga?'home':gh<ga?'away':'draw'}; }
-function eloEstimate(home, away){ if(home===undefined) home=1500; if(away===undefined) away=1500; var expHome = 1/(1+Math.pow(10,(away-home)/400)); var expAway = 1-expHome; return {goals_home:parseFloat((expHome*2.1).toFixed(2)), goals_away:parseFloat((expAway*2.1).toFixed(2)), winner: expHome>expAway?'home':'away'}; }
-function xgEstimate(homeForm, awayForm){ if(homeForm===undefined) homeForm=0.5; if(awayForm===undefined) awayForm=0.5; var gh = Math.max(0.2, 1.2 + (homeForm-awayForm)*1.4); var ga = Math.max(0.2, 1.0 + (awayForm-homeForm)*1.0); return {goals_home:parseFloat(gh.toFixed(2)), goals_away:parseFloat(ga.toFixed(2)), winner: gh>ga?'home':gh<ga?'away':'draw'}; }
-function computeEnsemblePreds(match){ var pf = poissonEstimate(0.55,0.47); var eo = eloEstimate(1520,1490); var xg = xgEstimate(0.55,0.47); var votes = [pf.winner, eo.winner, xg.winner]; var counts = votes.reduce(function(a,b){ a[b] = (a[b]||0)+1; return a; }, {}); var top = Object.keys(counts).reduce(function(a,b){ return counts[a]>counts[b]?a:b; }); var coherence = Math.round((counts[top]/votes.length)*100); return {models:[pf,eo,xg], coherence:coherence, winner:top}; }
-async function tryAll(date){ var parts = await Promise.all([fetchFromTheSportsDB(date), fetchFromApiFootball(date), fetchFromFootballData(date)]); return normalizeAndMerge(parts); }
-function renderMatches(matches){ grid.innerHTML = ''; if(!matches || matches.length===0){ grid.innerHTML = '<div class="card">' + t('no_matches') + '</div>'; return; } matches.forEach(function(m){ var pred = computeEnsemblePreds(m); var card = document.createElement('div'); card.className='card'; card.innerHTML = '<div class="league">' + (m.league||'') + '</div><div class="teams">' + m.home_team + ' vs ' + m.away_team + '</div><div class="confidence">Sources: ' + (m.sources.join(', ')) + ' - Confiance: ' + pred.coherence + '% - Suggestion: ' + pred.winner + '</div>'; grid.appendChild(card); }); }
-refreshBtn.addEventListener('click', async function(){ refreshBtn.disabled=true; refreshBtn.textContent = t('loading'); var date = dateInput.value; var list = await tryAll(date); renderMatches(list); refreshBtn.disabled=false; refreshBtn.textContent = t('refresh'); });
-window.addEventListener('load', function(){ setTimeout(function(){ splash.classList.add('hidden'); setTimeout(function(){ splash.style.display='none'; },600); },900); refreshBtn.click(); });
-window.saveRapidAPIKey = function(key){ localStorage.setItem('rapidapi_key', key); alert('RapidAPI key saved'); }
-window.saveFootballDataToken = function(token){ localStorage.setItem('football_data_token', token); alert('Football-Data token saved'); }
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(function(){}); }
+
+function formatTime(t){
+  if(!t) return '';
+  // if time is "20:00:00" keep it, else try to parse ISO datetime
+  if(t.indexOf(':')>=0 && t.length<=8) return t;
+  try{
+    const d = new Date(t);
+    return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }catch(e){ return t; }
+}
+
+async function fetchMatches(date){
+  try{
+    const url = `${API_THE_SPORTS_DB}${date}&s=Soccer`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('network');
+    const json = await res.json();
+    return json.events || [];
+  }catch(e){
+    console.warn('fetchMatches failed', e);
+    return null;
+  }
+}
+
+function render(events){
+  grid.innerHTML='';
+  if(events === null){
+    grid.innerHTML = '<div class="card">Impossible de récupérer les matchs. Vérifie ta connexion.</div>';
+    return;
+  }
+  if(events.length===0){
+    grid.innerHTML = '<div class="card">Aucun match disponible pour cette date.</div>';
+    return;
+  }
+  events.forEach(ev => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    const league = ev.strLeague || '';
+    const time = formatTime(ev.strTime || ev.strTimestamp);
+    const home = ev.strHomeTeam || 'Home';
+    const away = ev.strAwayTeam || 'Away';
+    const venue = ev.strVenue ? `<div class="meta">Lieu: ${ev.strVenue}</div>` : '';
+    div.innerHTML = `<div class="league">${league}</div>
+                     <div class="teams">${home} <span style="opacity:0.7">vs</span> ${away}</div>
+                     <div class="meta">Heure: ${time} • Match ID: ${ev.idEvent}</div>
+                     ${venue}`;
+    grid.appendChild(div);
+  });
+}
+
+refreshBtn.addEventListener('click', async ()=>{
+  refreshBtn.disabled = true;
+  refreshBtn.textContent = 'Chargement...';
+  const date = dateInput.value;
+  const list = await fetchMatches(date);
+  render(list);
+  refreshBtn.disabled = false;
+  refreshBtn.textContent = 'Actualiser';
+});
+
+window.addEventListener('load', ()=>{
+  setTimeout(()=>{ splash.classList.add('hidden'); setTimeout(()=>splash.style.display='none',600); },700);
+  refreshBtn.click();
+});
+
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
