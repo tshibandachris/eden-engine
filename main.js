@@ -1,8 +1,7 @@
 // === Eden Engine - Main.js ===
 // Auteur : Christian Tshibanda (Chris)
-// Description : Script principal de l'application Eden Engine
+// Description : Script principal de l'application Eden Engine (avec affichage de matchs)
 
-// Vérifie si le navigateur supporte les modules ES
 console.log("⚙️ Initialisation d’Eden Engine...");
 
 // === Configuration du thème sombre ===
@@ -35,14 +34,58 @@ container.innerHTML = `
       cursor:pointer;
       transition:0.3s;
     ">Rafraîchir</button>
+    <div id="matches" style="margin-top:20px; text-align:left;"></div>
     <p id="status" style="margin-top:20px; color:#888;">Chargement terminé ✅</p>
   </div>
 `;
 
-// === Événement du bouton Rafraîchir ===
-document.getElementById("refreshBtn").addEventListener("click", () => {
-  location.reload();
-});
+// === Fonction pour récupérer les matchs depuis OpenLiga ===
+async function getMatches(league = "bl1", year = new Date().getFullYear()) {
+  try {
+    const url = `https://api.openligadb.de/getmatchdata/${league}/${year}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Erreur réseau");
+    const data = await response.json();
+    return data.slice(0, 5).map((m) => ({
+      team1: m.Team1.TeamName,
+      team2: m.Team2.TeamName,
+      date: new Date(m.MatchDateTime).toLocaleDateString("fr-FR"),
+      score: m.MatchResults?.[0]
+        ? `${m.MatchResults[0].PointsTeam1} - ${m.MatchResults[0].PointsTeam2}`
+        : "à venir",
+    }));
+  } catch (error) {
+    console.error("Erreur lors du chargement des matchs :", error);
+    return [];
+  }
+}
+
+// === Affiche les matchs à l’écran ===
+async function afficherMatchs() {
+  const zone = document.getElementById("matches");
+  zone.innerHTML = "<p>Chargement des matchs ⚽...</p>";
+
+  const matchs = await getMatches();
+  if (matchs.length === 0) {
+    zone.innerHTML = "<p>Aucun match trouvé 😕</p>";
+    return;
+  }
+
+  zone.innerHTML = matchs
+    .map(
+      (m) => `
+      <div style="margin-bottom:10px; border-bottom:1px solid #333; padding:5px;">
+        <b>${m.team1}</b> vs <b>${m.team2}</b><br>
+        📅 ${m.date}<br>
+        🔢 Score : ${m.score}
+      </div>
+    `
+    )
+    .join("");
+}
+
+// === Rafraîchissement manuel ===
+document.getElementById("refreshBtn").addEventListener("click", afficherMatchs);
 
 // === Service Worker / PWA ===
 if ("serviceWorker" in navigator) {
@@ -61,17 +104,8 @@ window.addEventListener("online", () => {
   document.getElementById("status").textContent = "✅ Connexion rétablie";
   document.getElementById("status").style.color = "#00ff99";
 });
-// Vérifie que le navigateur supporte les Service Workers
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/service-worker.js')
-      .then(registration => {
-        console.log('✅ Service Worker enregistré avec succès:', registration.scope);
-      })
-      .catch(error => {
-        console.log('❌ Échec de l’enregistrement du Service Worker:', error);
-      });
-  });
-}
+
+// === Chargement initial ===
+afficherMatchs();
+
 console.log("🌐 Eden Engine prêt !");
