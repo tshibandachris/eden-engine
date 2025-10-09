@@ -1,19 +1,32 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Eden Engine - Prédictions de paris football" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="description" content="Eden Engine — plateforme numérique intelligente conçue par Christian Tshibanda (Chris)" />
     <title>Eden Engine</title>
+
+    <!-- PWA -->
     <link rel="manifest" href="manifest.json" />
-    <link rel="icon" href="favicon.ico" />
-    <link rel="apple-touch-icon" href="logo192.png" />
-    <script defer="defer" src="./static/js/main.js"></script>
-    <link href="./static/css/main.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="logo192.png" />
+    <link rel="apple-touch-icon" href="logo512.png" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="./static/css/main.css" />
   </head>
+
   <body>
-    <noscript>Vous devez activer JavaScript pour voir cette application.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div class="card">
+        <h1>🚀 Eden Engine</h1>
+        <p>Bienvenue sur la plateforme numérique intelligente conçue par <b>Chris</b>.</p>
+        <div class="loader"></div>
+        <p>Chargement de l’application...</p>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="./static/js/main.js"></script>
   </body>
 </html>
