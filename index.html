@@ -17,19 +17,71 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="./main.css" />
+
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Roboto, sans-serif;
+        background: radial-gradient(circle at top left, #0d1117, #0a0a0a);
+        color: #e6edf3;
+        text-align: center;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        color: #8b949e;
+        margin: 0.2rem 0;
+      }
+
+      .loader {
+        margin-top: 20px;
+        width: 60px;
+        height: 60px;
+        border: 6px solid #222;
+        border-top: 6px solid #00a0a0;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      footer {
+        position: absolute;
+        bottom: 10px;
+        font-size: 0.8rem;
+        color: #555;
+      }
+    </style>
   </head>
+
   <body>
     <div id="root">
-      <div class="card">
-        <h1>🚀 Eden Engine</h1>
-        <p>
-          Bienvenue sur la plateforme numérique intelligente conçue par
-          <b>Chris</b>.
-        </p>
-        <div class="loader"></div>
-        <p>Chargement de l'application...</p>
-      </div>
+      <h1>🚀 Eden Engine</h1>
+      <p>
+        Bienvenue sur la plateforme numérique intelligente conçue par
+        <b>Chris</b>.
+      </p>
+      <div class="loader"></div>
+      <p>Chargement de l'application...</p>
     </div>
+
+    <footer>Eden Engine © 2025 Christian Tshibanda</footer>
 
     <!-- Script principal -->
     <script type="module" src="./main.js"></script>
