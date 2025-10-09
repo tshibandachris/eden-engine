@@ -1,7 +1,7 @@
 {
   "name": "Eden Engine",
   "short_name": "Eden",
-  "description": "Eden Engine \u2014 Pr\u00e9dictions de paris football (PWA)",
+  "description": "Eden Engine - Predictions football (PWA)",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#071126",

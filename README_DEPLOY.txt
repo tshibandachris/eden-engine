@@ -1,10 +1,12 @@
 
-Eden Engine - package pré-compilé PWA (FR)
+Eden Engine - prebuilt PWA (FR/EN) - Multi-API connectors
 
-Déploiement rapide:
-1. Décompresse l'archive.
-2. Uploade tous les fichiers/folders à la racine du repo `eden-engine` sur GitHub.
+Deploy:
+1. Unzip.
+2. Upload all files to the root of your 'eden-engine' GitHub repo.
 3. GitHub Pages: Settings -> Pages -> Branch = main, Folder = / (root). Save.
-4. Attendre ~1-2 minutes, ouvrir https://tshibandachris.github.io/eden-engine/
+4. Wait ~1-2 minutes and open https://tshibandachris.github.io/eden-engine/
 
-Note: script JS appelle TheSportsDB (gratuite) pour événements du jour.
+Notes:
+- The frontend uses TheSportsDB by default (no key).
+- Optionally paste RapidAPI (API-Football) key or Football-Data token in the settings; keys stored in localStorage.
