@@ -1,71 +1,70 @@
-// === Eden Engine - Service Worker ===
-// Auteur : Christian Tshibanda (Chris)
-// Version : 1.0.0
+// Nom du cache
+const CACHE_NAME = 'eden-engine-cache-v1';
 
-const CACHE_NAME = "eden-engine-cache-v1";
-const FILES_TO_CACHE = [
-  "/",
-  "/index.html",
-  "/static/js/main.js",
-  "/manifest.json",
-  "/icon-192.png",
-  "/icon-512.png"
+// Liste des fichiers à mettre en cache
+const URLS_TO_CACHE = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/main.js',
+  '/style.css',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
-// === Installation du service worker ===
-self.addEventListener("install", (event) => {
-  console.log("⚙️ Installation du Service Worker Eden Engine...");
+// 💾 INSTALLATION : Mise en cache initiale
+self.addEventListener('install', event => {
+  console.log('📦 Installation du service worker...');
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log("📦 Mise en cache initiale des fichiers...");
-      return cache.addAll(FILES_TO_CACHE);
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('✅ Fichiers ajoutés au cache');
+      return cache.addAll(URLS_TO_CACHE);
     })
   );
   self.skipWaiting();
 });
 
-// === Activation et nettoyage des anciens caches ===
-self.addEventListener("activate", (event) => {
-  console.log("♻️ Activation du Service Worker...");
+// ⚙️ ACTIVATION : Nettoyage des anciens caches
+self.addEventListener('activate', event => {
+  console.log('🚀 Activation du service worker');
   event.waitUntil(
-    caches.keys().then((keyList) =>
-      Promise.all(
-        keyList.map((key) => {
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.map(key => {
           if (key !== CACHE_NAME) {
-            console.log("🗑️ Suppression de l'ancien cache :", key);
+            console.log('🧹 Suppression ancien cache:', key);
             return caches.delete(key);
           }
         })
-      )
-    )
+      );
+    })
   );
   self.clients.claim();
 });
 
-// === Interception des requêtes réseau ===
-self.addEventListener("fetch", (event) => {
+// 🌐 FETCH : Interception des requêtes
+self.addEventListener('fetch', event => {
+  // Stratégie cache-first
   event.respondWith(
-    caches.match(event.request).then((response) => {
+    caches.match(event.request).then(response => {
       if (response) {
-        console.log("📁 Fichier récupéré depuis le cache :", event.request.url);
+        console.log('📁 Fichier chargé depuis le cache:', event.request.url);
         return response;
       }
-      console.log("🌐 Récupération en ligne :", event.request.url);
-      return fetch(event.request)
-        .then((response) => {
-          // Met en cache la nouvelle ressource pour une utilisation future
-          if (!response || response.status !== 200 || response.type !== "basic") {
-            return response;
-          }
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
-        })
-        .catch(() =>
-          caches.match("/index.html") // fallback
-        );
+
+      console.log('🌍 Fichier récupéré sur le réseau:', event.request.url);
+      return fetch(event.request).then(networkResponse => {
+        // Enregistre la réponse en cache pour usage futur
+        return caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
+        });
+      }).catch(() => {
+        // Page de secours si hors ligne
+        if (event.request.mode === 'navigate') {
+          return caches.match('/index.html');
+        }
+      });
     })
   );
 });
