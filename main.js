@@ -61,5 +61,17 @@ window.addEventListener("online", () => {
   document.getElementById("status").textContent = "✅ Connexion rétablie";
   document.getElementById("status").style.color = "#00ff99";
 });
-
+// Vérifie que le navigateur supporte les Service Workers
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/service-worker.js')
+      .then(registration => {
+        console.log('✅ Service Worker enregistré avec succès:', registration.scope);
+      })
+      .catch(error => {
+        console.log('❌ Échec de l’enregistrement du Service Worker:', error);
+      });
+  });
+}
 console.log("🌐 Eden Engine prêt !");
