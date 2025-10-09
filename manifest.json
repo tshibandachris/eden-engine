@@ -1,20 +1,24 @@
 {
-  "short_name": "Eden",
   "name": "Eden Engine",
+  "short_name": "EdenEngine",
+  "description": "Application web progressive de prédiction, de gestion et d’analyse intelligente des matchs.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#0d1117",
+  "lang": "fr-FR",
   "icons": [
     {
-      "src": "icons/icon-192x192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512x512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#0b1220",
-  "background_color": "#071126"
+  ]
 }
