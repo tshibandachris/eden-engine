@@ -1,48 +1,65 @@
-// Eden Engine - main.js
-// Version React Build simplifiée pour utilisation manuelle
+// === Eden Engine - Main.js ===
 // Auteur : Christian Tshibanda (Chris)
+// Description : Script principal de l'application Eden Engine
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const root = document.getElementById("root");
+// Vérifie si le navigateur supporte les modules ES
+console.log("⚙️ Initialisation d’Eden Engine...");
 
-  root.innerHTML = `
-    <div style="font-family: sans-serif; color: white; background:#0a0a0a; min-height:100vh; padding:20px;">
-      <h1 style="text-align:center;">⚙️ Eden Engine ⚙️</h1>
-      <p style="text-align:center;">Chargement des matchs du jour...</p>
-      <div id="matches" style="margin-top:20px;"></div>
-    </div>
-  `;
+// === Configuration du thème sombre ===
+document.body.style.backgroundColor = "#0a0a0a";
+document.body.style.color = "#f5f5f5";
+document.body.style.fontFamily = "Inter, sans-serif";
+document.body.style.margin = "0";
+document.body.style.padding = "0";
+document.body.style.display = "flex";
+document.body.style.justifyContent = "center";
+document.body.style.alignItems = "center";
+document.body.style.height = "100vh";
 
-  const container = document.getElementById("matches");
+// === Création du contenu principal ===
+const container = document.getElementById("root");
+container.innerHTML = `
+  <div style="text-align:center; max-width:500px;">
+    <h1 style="color:#00d4ff; font-size:2.5em;">🌌 Eden Engine</h1>
+    <p style="font-size:1.1em; color:#ccc;">
+      Bienvenue sur ta plateforme numérique intelligente.<br>
+      <b>Mode :</b> Hors ligne / Connecté.
+    </p>
+    <button id="refreshBtn" style="
+      background:#00d4ff;
+      color:#0a0a0a;
+      border:none;
+      padding:10px 20px;
+      border-radius:8px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:0.3s;
+    ">Rafraîchir</button>
+    <p id="status" style="margin-top:20px; color:#888;">Chargement terminé ✅</p>
+  </div>
+`;
 
-  try {
-    // ⚽️ API publique pour obtenir des matchs gratuits (football-data.org en proxy)
-    const response = await fetch("https://api.football-data.org/v4/matches", {
-      headers: { "X-Auth-Token": "b15f1b3b0cf14b88b604c2b3cf37e4f2" } // clé publique d’exemple
-    });
-
-    const data = await response.json();
-    const matches = data.matches || [];
-
-    if (matches.length === 0) {
-      container.innerHTML = "<p>Aucun match trouvé aujourd'hui.</p>";
-      return;
-    }
-
-    container.innerHTML = matches
-      .slice(0, 10)
-      .map(
-        (m) => `
-        <div style="background:#1a1a1a; padding:10px; margin-bottom:10px; border-radius:8px;">
-          <h3>${m.competition?.name || "Compétition inconnue"}</h3>
-          <p><strong>${m.homeTeam.name}</strong> vs <strong>${m.awayTeam.name}</strong></p>
-          <p>Date : ${new Date(m.utcDate).toLocaleString()}</p>
-          <p>Status : ${m.status}</p>
-        </div>
-      `
-      )
-      .join("");
-  } catch (err) {
-    container.innerHTML = `<p>Erreur lors du chargement : ${err.message}</p>`;
-  }
+// === Événement du bouton Rafraîchir ===
+document.getElementById("refreshBtn").addEventListener("click", () => {
+  location.reload();
 });
+
+// === Service Worker / PWA ===
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("/service-worker.js")
+    .then(() => console.log("✅ Service Worker enregistré"))
+    .catch((err) => console.error("❌ Erreur SW:", err));
+}
+
+// === Détection du mode offline ===
+window.addEventListener("offline", () => {
+  document.getElementById("status").textContent = "⚠️ Mode hors ligne activé";
+  document.getElementById("status").style.color = "#ff9900";
+});
+window.addEventListener("online", () => {
+  document.getElementById("status").textContent = "✅ Connexion rétablie";
+  document.getElementById("status").style.color = "#00ff99";
+});
+
+console.log("🌐 Eden Engine prêt !");
