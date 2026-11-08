@@ -26,8 +26,8 @@ export async function getMatches(league = "bl1", year = new Date().getFullYear()
 
   return payload.map((match) => {
     const results = Array.isArray(match.MatchResults) ? match.MatchResults : [];
-    const finalResult = [...results].reverse().find((result) => result.ResultName === "Endergebnis")
-      || results[results.length - 1];
+    const finalResult = results.find((result) => result.ResultTypeID === 2)
+      || results.find((result) => result.ResultName === "Endergebnis");
 
     return {
       id: match.MatchID,
@@ -37,7 +37,7 @@ export async function getMatches(league = "bl1", year = new Date().getFullYear()
       score: finalResult
         ? `${finalResult.PointsTeam1} – ${finalResult.PointsTeam2}`
         : "À venir",
-      finished: Boolean(finalResult),
+      finished: Boolean(match.MatchIsFinished && finalResult),
       group: match.Group?.GroupName || "",
     };
   }).sort((a, b) => new Date(a.date) - new Date(b.date));
