@@ -1,0 +1,16 @@
+{
+  "id": "./",
+  "name": "Eden Engine",
+  "short_name": "Eden",
+  "description": "Consultation des calendriers et résultats de football.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080a0f",
+  "theme_color": "#080a0f",
+  "lang": "fr",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
