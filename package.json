@@ -1,7 +1,7 @@
 {
   "name": "eden-engine",
   "version": "1.0.0",
-  "private": false,
+  "private": true,
   "homepage": "https://tshibandachris.github.io/eden-engine",
   "dependencies": {
     "react": "^18.2.0",
@@ -16,5 +16,8 @@
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
