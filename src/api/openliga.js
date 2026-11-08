@@ -15,7 +15,7 @@ export function normalizeMatch(match) {
 
   const homeScore = finalResult?.PointsTeam1;
   const awayScore = finalResult?.PointsTeam2;
-  const hasScore = Number.isFinite(Number(homeScore)) && Number.isFinite(Number(awayScore));
+  const hasScore = homeScore !== null && homeScore !== undefined && awayScore !== null && awayScore !== undefined && Number.isFinite(Number(homeScore)) && Number.isFinite(Number(awayScore));
 
   return {
     id: String(match.MatchID ?? match.MatchDateTime ?? [match.Team1.TeamName, match.Team2.TeamName].join("-")),
