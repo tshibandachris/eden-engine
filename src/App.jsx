@@ -47,7 +47,7 @@ export default function App() {
           <span className="brand-mark">E</span>
           <span><strong>EDEN ENGINE</strong><small>Football data workspace</small></span>
         </a>
-        <span className="status"><i /> Données en direct</span>
+        <span className="status"><i /> Source externe</span>
       </header>
 
       <section className="hero">
