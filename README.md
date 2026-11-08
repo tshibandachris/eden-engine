@@ -37,7 +37,7 @@ src/
 - `public/` : document HTML, manifeste, icône et service worker.
 - `.github/workflows/ci.yml` : tests et compilation automatisés.
 
-Les anciens fichiers JavaScript à la racine ne sont plus utilisés par le build React et seront retirés dans cette consolidation.
+Les anciennes implémentations concurrentes à la racine ont été retirées : le build React utilise désormais exclusivement l'arborescence `src/` et `public/`.
 
 ## Prérequis
 
