@@ -1,0 +1,11 @@
+{
+  "name": "Eden Engine",
+  "short_name": "Eden Engine",
+  "description": "Calendrier et résultats de football.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#07090e",
+  "theme_color": "#07090e",
+  "lang": "fr"
+}
