@@ -24,9 +24,7 @@ jobs:
           node-version: 24
       - name: Generate lockfile when missing
         run: |
-          if [ ! -f package-lock.json ]; then
-            npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-          fi
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Install locked dependencies
         run: npm ci
       - name: Run automated tests
