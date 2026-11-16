@@ -5,7 +5,14 @@ export const LEAGUES = [
   { code: "bl2", name: "2. Bundesliga" },
 ];
 
-export async function getMatches(league = "bl1", year = new Date().getFullYear(), signal) {
+// OpenLigaDB identifies a season by the calendar year in which it starts.
+// German league seasons normally start in July and finish the following year.
+export function getCurrentSeasonYear(date = new Date()) {
+  const year = date.getFullYear();
+  return date.getMonth() >= 6 ? year : year - 1;
+}
+
+export async function getMatches(league = "bl1", year = getCurrentSeasonYear(), signal) {
   if (!LEAGUES.some((item) => item.code === league)) {
     throw new Error("Compétition non prise en charge.");
   }

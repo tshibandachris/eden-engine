@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { getMatches, LEAGUES } from "./api/openliga";
+import { getMatches, getCurrentSeasonYear, LEAGUES } from "./api/openliga";
 
 function formatDate(value) {
   if (!value) return "Date non communiquée";
@@ -22,7 +22,7 @@ export default function App() {
     setLoading(true);
     setError("");
     try {
-      const data = await getMatches(league, new Date().getFullYear(), signal);
+      const data = await getMatches(league, getCurrentSeasonYear(), signal);
       setMatches(data);
       setUpdatedAt(new Date());
     } catch (err) {
