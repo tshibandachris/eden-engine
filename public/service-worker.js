@@ -28,19 +28,20 @@ self.addEventListener("fetch", (event) => {
   const requestUrl = new URL(event.request.url);
   if (requestUrl.origin !== self.location.origin) return;
 
+  const networkResponse = fetch(event.request);
+  event.waitUntil(
+    networkResponse.then((response) => {
+      if (!response || !response.ok) return;
+      return caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
+    }).catch(() => undefined)
+  );
+
   event.respondWith(
-    fetch(event.request).then((response) => {
-      if (response && response.ok) {
-        const copy = response.clone();
-        event.waitUntil(
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy))
-        );
-      }
-      return response;
-    }).catch(async () => {
-      const cached = await caches.match(event.request);
+    networkResponse.catch(async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(event.request);
       if (cached) return cached;
-      if (event.request.mode === "navigate") return caches.match(SHELL_URL);
+      if (event.request.mode === "navigate") return cache.match(SHELL_URL);
       return Response.error();
     })
   );
